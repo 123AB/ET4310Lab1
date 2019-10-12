@@ -28,6 +28,16 @@ Table 1: Run time on subsets of the dataset with a cluster.
 | Master  |   |   |   |   |   |   |
 |  Core |   |   |   |   |   |   |
 
+Table 2: Settings of a cluster with 1 m4.xlarge master node and 20 m4.4xlarge core nodes.
+
+|Setting   |Description   |Default   |Apply config   |
+|---|---|---|---|
+|spark.driver.memory   |   |   |   |
+|spark.executor.memory    |   |   |   |
+|spark.executor.cores   |   |   |   |
+|spark.executor.instances   |   |   |   |
+|spark.default.parallelism    |   |   |   |
+
 ## Modification
 
 ## Improvements
