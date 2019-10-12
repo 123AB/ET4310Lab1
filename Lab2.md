@@ -1,3 +1,19 @@
 # Super Computing for Big Data (ET4310) - Lab 2
 ##### Zhiyue Zhang (4764242) and Shikhar Dev (4773071)
 ##### October 12, 2019
+
+## Introduction
+
+This report represent the implementation of running a Spark application on the Amazon Web Service
+(AWS). We will analyze a large open data set by using Apache Spark and the Amazon Web Services 
+(AWS). The data set is the GDELT 2.0 Global Knowledge Graph (GKG), which indexes persons, 
+organizations, companies, locations, themes, and even emotions from live news reports in print, broadcast 
+and internet sources all over the world. We will use this data to construct a rank of the topics that are most popular on a given day, expected giving us some interesting insights such as future trend  based on the past popular topics discussed in news articles in recent history. We are
+interested in one column of the data, the ALLNAMES field. This field contains all proper names
+referenced in the news articles, such as people, organization, events, movements, wars, and named
+legislation2
+, which we use as the topics.
+To be more concrete, we retrieve the top 10 mentioned topics of each day by counting the
+terms in the ALLNAMES fields and aggregate them by date. We are using RDD implementation in this lab.
+
+
