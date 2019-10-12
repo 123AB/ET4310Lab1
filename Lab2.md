@@ -64,4 +64,18 @@ Table 3: Summaries of the execution time and some Ganglia metrics of different c
 
 ## Conclusion
 
-## Future Improvement Plans
+## Future Improvement
+
+Table 4: Memory, CPUs, storage, network, and the costs of several instance types that we use.
+
+|Instance Types   |Memory   |vCPUs   |Storage   |Network   | On-Demand Cost  |
+|---|---|---|---|---|---|
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
+|   |   |   |   |   |   |
