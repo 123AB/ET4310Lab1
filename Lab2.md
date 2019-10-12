@@ -23,10 +23,19 @@ Table 1.
 
 Table 1: Run time on subsets of the dataset with a cluster.
 
-|   |# instance i| instance type  | memory (GiB)  |Storage  | # vCPU   |Entire dataset   |
+|   |# instance i| instance type  | memory (GiB)  |Storage  | # vCPU   |Entire dataset   |100 data files   |
 |---|---|---|---|---|---|---|
-| Master  |1    |c4.8xlarge   | 60  |512    |720   |17min   |
-|  Core |20   |c4.8xlarge   |60    |512    |36   |17 min   |
+| Master  |1    |c4.8xlarge   | 60  |512    |720   |17min   |19s   |
+|  Core |20   |c4.8xlarge   |60    |512    |36   |17 min   |19s   |
+
+As the time performs better than linear growth with respect to the number of files, it seems
+to scale well. Running on the entire dataset, however, results in OutOfMemoeryError of Java
+heap space. This is the case even if the instance type is changed to c4.8xlarge, which has a 60
+GiB of memory. This problem signals that JVM is running out of memory either on the driver or
+the executor. We use Apache Ganglia to monitor the cluster but the problem cannot be spotted.
+Examining the Environment tab of SparkUI, we see that only 4 cores are used per executor, which
+does not match the resource that we have.
+
 
 Table 2: Settings of a cluster with 1 m4.xlarge master node and 20 m4.4xlarge core nodes.
 
