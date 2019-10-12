@@ -51,14 +51,14 @@ decrease. The configurations (Config) and the runtime are as follows:
 • Config 1: 1 master (c4.8xlarge) and 20 cores (c4.8xlarge) 20 executor spark.default.parallelism=370 
 Time: 17:00
 • Config 2: 1 master (m4.xlarge) and 16 cores (m4.4xlarge)
-Time: 
+Time: 31:00
 • Config 3: 1 master (c4.8xlarge) 15 cores (c4.8xlarge) 200 executor spark.default.parallelism=400
-Time: 5
+Time: 5:00
 To this end, we have successfully met the requirement of running the application within half an
 hour using 20 c4.8xlarge instances. However, the cluster configuration is chosen quite arbitrarily
 and requires some justification. The following figures shows some graphs we get from Apache Ganglia for the Config 1. The time when each stage is being executed is shown in the bottom graph. The graphs represent the CPU usage of each instance in
 the cluster, the CPU usage of the cluster, the memory usage of the cluster, and the network of
-the cluster (left to right, top to bottom).
+the cluster (left to right, top to bottom). And another things is the m4.xlarge did not meet our requirment because of the lack of cores.
 
 We can observe a few things:
 1. The CPU utilization is very low around 50%.
@@ -69,8 +69,21 @@ In the following, we will optimize the application based on these observations.
 
 
 ## Improvements
-
+In this section, we will discuss the configurations that we have experimented with based on previous
+observations as well as new observations along the way. But before diving into all the experiments,
+we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
 ### Tuning instance type and numbers
+We mainly use compute-optimized instances as the memory requirement of the application is not
+a bottleneck. C5 is the newest generation of the compute-optimized family and is said to provide
+improved processing power at a lower cost [4]. Thus we mainly experiment with the C5 family.
+Following are the motivation for our experiments:
+• Config 3: Compare whether C4 and C5 family has an actual difference.
+• Config 4: Test whether m4.xlarge is sufficient as a master node; test whether c5.4xlarge
+would double execution time compared to c5.9xlarge.
+• Config 5: The hypothesis here is that using a few large nodes can reduce the amount of data
+transferred between nodes. We assume that data transfer between CPUs within a node is
+faster.
+• Config 6: Test the effect of many small nodes.
 
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
@@ -93,6 +106,10 @@ Table 3: Summaries of the execution time and some Ganglia metrics of different c
 ## Conclusion
 
 ## Future Improvement
+Finally, we want to point to some possible improvement plans.
+1. The network become our bottleneck and in the future with the 5G development, the testing performance would be better if the hardware stteing keeeps same.
+2. As the dataset increases, the amount of data being shuffled would increase. Therefore our code for the spark and scala mapreduce operation still need to be improved to reduce the running time.
+3. Write a script to automate the all test settings to reduce the time cost.
 
 Table 4: Memory, CPUs, storage, network, and the costs of several instance types that we use.
 
