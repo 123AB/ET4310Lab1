@@ -48,11 +48,24 @@ executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times 
 
 With this setting, we were able to process the entire dataset with a significant performance
 decrease. The configurations (Config) and the runtime are as follows:
-• Config 2: 1 master (c4.8xlarge) and 20 cores (c4.8xlarge)
+• Config 1: 1 master (c4.8xlarge) and 20 cores (c4.8xlarge) 20 executor spark.default.parallelism=370 
 Time: 17:00
-• Config 1: 1 master (m4.xlarge) and 16 cores (m4.4xlarge)
+• Config 2: 1 master (m4.xlarge) and 16 cores (m4.4xlarge)
 Time: 
+• Config 3: 1 master (c4.8xlarge) 15 cores (c4.8xlarge) 200 executor spark.default.parallelism=400
+Time: 5
+To this end, we have successfully met the requirement of running the application within half an
+hour using 20 c4.8xlarge instances. However, the cluster configuration is chosen quite arbitrarily
+and requires some justification. The following figures shows some graphs we get from Apache Ganglia for the Config 1. The time when each stage is being executed is shown in the bottom graph. The graphs represent the CPU usage of each instance in
+the cluster, the CPU usage of the cluster, the memory usage of the cluster, and the network of
+the cluster (left to right, top to bottom).
 
+We can observe a few things:
+1. The CPU utilization is very low around 50%.
+2. The network bandwidth, in this case around 10 GB/s, is a bottleneck when reading the
+input files, and the output is quite slow compare with the input speed.
+3. Memory capacity can possibly be reduced as the usage is less than 60% even at its peak.
+In the following, we will optimize the application based on these observations.
 
 
 ## Improvements
