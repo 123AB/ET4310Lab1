@@ -58,7 +58,7 @@ Table 3: Summaries of the execution time and some Ganglia metrics of different c
 
 ### Modifying the application
 
-### Tuning Yarn/Spark configuration flags to best match the problem
+### Tuning Yarn/Spark configuration flags
 
 ## Recommendation of Configuration
 
