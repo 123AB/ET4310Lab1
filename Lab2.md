@@ -23,10 +23,10 @@ Table 1.
 
 Table 1: Run time on subsets of the dataset with a cluster.
 
-|   |# instance i| instance type  | memory (GiB)  |Storage  | # vCPU   |Entire dataset   |100 data files   |
-|---|---|---|---|---|---|---|
-| Master  |1    |c4.8xlarge   | 60  |512    |720   |17min   |19s   |
-|  Core |20   |c4.8xlarge   |60    |512    |36   |17 min   |19s   |
+|   |# instance i| instance type  | memory (GiB)  |Storage  | # vCPU   |Entire dataset| 100 data files |
+|---|---|---|---|---|---|---|---|
+| Master  |1    |c4.8xlarge   | 60  |512    |720   |17min   |19s |
+|  Core |20   |c4.8xlarge   |60    |512    |36   |17 min   |19s |
 
 As the time performs better than linear growth with respect to the number of files, it seems
 to scale well. Running on the entire dataset, however, results in OutOfMemoeryError of Java
