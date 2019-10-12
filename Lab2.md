@@ -1,5 +1,5 @@
 # Super Computing for Big Data (ET4310) - Lab 2
-##### Zhiyue Zhang (4764242) and Shikhar Dev (4773071)
+##### Zhiyue Zhang (4764242) and N.U.S.Zia (4822498)
 ##### October 12, 2019
 
 ## Introduction
@@ -16,4 +16,20 @@ legislation2
 To be more concrete, we retrieve the top 10 mentioned topics of each day by counting the
 terms in the ALLNAMES fields and aggregate them by date. We are using RDD implementation in this lab.
 
+## Configuration
 
+## Modification
+
+## Improvements
+
+### Tuning instance type and numbers
+
+### Modifying the application
+
+### Tuning Yarn/Spark configuration flags to best match the problem
+
+## Recommendation of Configuration
+
+## Conclusion
+
+## Future Improvement Plans
