@@ -44,6 +44,18 @@ Table 2: Settings of a cluster with 1 m4.xlarge master node and 20 m4.4xlarge co
 
 ### Tuning instance type and numbers
 
+Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
+
+|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Total Time(min:sec)|Max CPUusage (%)|Max NetworkBW (GB/s)|
+|---|---|---|---|---|---|---|
+|1   |   |   |   |   |   |   |
+|2   |   |   |   |   |   |   |
+|3   |   |   |   |   |   |   |
+|4   |   |   |   |   |   |   |
+|5   |   |   |   |   |   |   |
+|6   |   |   |   |   |   |   |
+
+
 ### Modifying the application
 
 ### Tuning Yarn/Spark configuration flags to best match the problem
