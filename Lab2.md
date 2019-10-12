@@ -25,8 +25,8 @@ Table 1: Run time on subsets of the dataset with a cluster.
 
 |   |# instance i| instance type  | memory (GiB)  | # vCPU  |   |   |
 |---|---|---|---|---|---|---|
-| Master  |   |   |   |   |   |   |
-|  Core |   |   |   |   |   |   |
+| Master  |1    |c4.8xlarge   | 60  |512    |   |   |
+|  Core |20   |c4.8xlarge   |60    |512    |36   |   |
 
 Table 2: Settings of a cluster with 1 m4.xlarge master node and 20 m4.4xlarge core nodes.
 
