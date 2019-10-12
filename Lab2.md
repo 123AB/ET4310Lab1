@@ -17,6 +17,16 @@ To be more concrete, we retrieve the top 10 mentioned topics of each day by coun
 terms in the ALLNAMES fields and aggregate them by date. We are using RDD implementation in this lab.
 
 ## Configuration
+We start with our original RDD implementation, which runs faster on our local machine than the
+Dataset implementation. The configuration and runtime on a subset of the dataset is shown in
+Table 1.
+
+Table 1: Run time on subsets of the dataset with a cluster.
+
+|   |# instance i| instance type  | memory (GiB)  | # vCPU  |   |   |
+|---|---|---|---|---|---|---|
+| Master  |   |   |   |   |   |   |
+|  Core |   |   |   |   |   |   |
 
 ## Modification
 
