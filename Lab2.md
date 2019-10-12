@@ -39,9 +39,21 @@ Table 2: Settings of a cluster with 1 m4.xlarge master node and 20 m4.4xlarge co
 |spark.executor.memory    |Amount of memory to use per executor process.  |10G   |10G   |
 |spark.executor.cores   |# cores to use on each executor   |2   |20   |
 |spark.executor.instances   |# executors   |20   |20   |
-|spark.default.parallelism    |# partitions in RDDs    |   |370   |
+|spark.default.parallelism    |# partitions in RDDs    |# cores on all executor   |370   |
 
 ## Modification
+At this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
+used in each executor, and RDD parallelism. We set the number of
+executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times as we expected.
+
+With this setting, we were able to process the entire dataset with a significant performance
+decrease. The configurations (Config) and the runtime are as follows:
+• Config 2: 1 master (c4.8xlarge) and 20 cores (c4.8xlarge)
+Time: 17:00
+• Config 1: 1 master (m4.xlarge) and 16 cores (m4.4xlarge)
+Time: 
+
+
 
 ## Improvements
 
