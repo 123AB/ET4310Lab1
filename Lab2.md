@@ -66,6 +66,13 @@ The configuration closen for baseline were:
 |spark.executor.instances   |# executors   |20   |139   |
 |spark.default.parallelism    |# partitions in RDDs    |# cores on all executor   |695   |
 
+The results for baseline were:
+| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR)* | Cost     |
+| --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
+| 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
+
+* prices mentioned as (EC2 master, EMR master, EC2 core, EMR core) which will be used in the next section as well.
+
 ## Results (Noor)
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
