@@ -77,10 +77,12 @@ The results for baseline were:
 ## Observations
 We can observe a few things:
 
-[^1]: The CPU utilization is very low around 50%.
-[^2]: The network bandwidth, in this case around 10 GB/s, is a bottleneck when reading the
+1. The CPU utilization is very low around 50%.
+
+2. The network bandwidth, in this case around 10 GB/s, is a bottleneck when reading the
 input files, and the output is quite slow compare with the input speed.
-[^3]: Memory capacity can possibly be reduced as the usage is less than 50% even at its peak.
+
+3. Memory capacity can possibly be reduced as the usage is less than 50% even at its peak.
 
 In the following, we will optimize the application based on these observations.
 
