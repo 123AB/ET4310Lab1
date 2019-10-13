@@ -45,7 +45,7 @@ Number of executors per node = (Total cores - 1) / `executor-cores`
 **1 is subtracted as there is 1 executor (java process) for Application Master in YARN.*
 
 `**executor-memory**` = (memory for each executor in each node) - 0.07*overhead
-*where overhead is  max(384, .07 * spark.executor.memory)*
+*where overhead is  max(384M, .07 * spark.executor.memory)*
 
 `**spark.default.parallelism**` -  `**num-executors**` x `**executor-cores**`
 
