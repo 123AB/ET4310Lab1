@@ -89,12 +89,16 @@ executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times 
 
 With this setting, we were able to process the entire dataset with a significant performance
 decrease. The configurations (Config) and the runtime are as follows:
+
 • Config 1: 1 master (c4.8xlarge) and 20 cores (c4.8xlarge) 20 executor spark.default.parallelism=370 
 Time: 17:00
+
 • Config 2: 1 master (m4.xlarge) and 16 cores (m4.4xlarge)
 Time: 31:00
+
 • Config 3: 1 master (c4.8xlarge) 15 cores (c4.8xlarge) 200 executor spark.default.parallelism=400
 Time: 5:00
+
 To this end, we have successfully met the requirement of running the application within half an
 hour using 20 c4.8xlarge instances. However, the cluster configuration is chosen quite arbitrarily
 and requires some justification. The following figures shows some graphs we get from Apache Ganglia for the Config 1. The time when each stage is being executed is shown in the bottom graph. The graphs represent the CPU usage of each instance in
@@ -128,15 +132,15 @@ faster.
 
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
-|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Total Time(min:sec)|Max CPUusage (%)|Max NetworkBW (GB/s)|
-|---|---|---|---|---|---|---|
-|1   |   |   |   |   |   |   |
-|2   |   |   |   |   |   |   |
-|3   |   |   |   |   |   |   |
-|4   |   |   |   |   |   |   |
-|5   |   |   |   |   |   |   |
-|6   |   |   |   |   |   |   |
+|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
+|---|---|---|---|---|---|
+|1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |27   |8   |50   |10   |
+|2   |1 master (c4.8xlarge) 20 cores (c4.8xlarge)    | 17  |5   |47   |14   |
+|3   |1 master (m4.xlarge) 20 cores (c5.4xlarge)    |12   |3   |55  |7   |
+|4   |1 master (m4.xlarge) 10 cores (c5.18xlarge)   |8   |N/A   |N/A  |N/A   |
+|5   |1 master (m4.xlarge) 25 cores (c5.2xlarge)    |16   |N/A   |N/A  |N/A   |
 
+Table 3 shows the results of the experiments. 
 
 ### Modifying the application
 
