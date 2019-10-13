@@ -38,9 +38,9 @@ C = core node cost
 ## Configuration
 To calculate spark submit parameters we used the guidelines provided in [2]. 
 `**executor-cores**` = *Number of cores = Concurrent tasks an executor can run =*  5 (recommended).
-Number of executors per node = Total cores / `executor-cores`
+Number of executors per node = (Total cores - 1) / `executor-cores`
 
-`**num-executors**` =(  core_instances * (Total available cores in one node) / `executor-cores`) - 1*
+`**num-executors**` =(  core_instances * (Total available cores in one node - 1) / `executor-cores`) - 1*
 **1 is subtracted as there is 1 executor (java process) for Application Master in YARN.*
 
 `**executor-memory**` = (memory for each executor in each node) - 0.07*overhead
@@ -80,31 +80,29 @@ We noticed that the memory and CPU utilization was low. We tested switching to a
 
 We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge core instances and the average CPU utilization increased to 55%. We also noticed that the master node has very loq CPU utilization and it can be replaced with a machine with less vCPUs. We further decreased the core instances to 3, which increased CPU utilization to 92%. This combination reduced the cost to **$2.40**.
 
-We also noticed that the memory capacity can be reduced as it is 
+As the CPU were not being used to full potential with 5 c5.18xlarge, we decided to replace c5 machines with m4.10xlarge. Another reason to do so was the price difference but we did not notice any improvement in cost and the time doubled. 
+
+We further tested replacing c5.18xlarge instances with c5.9xlarge instances 
 ## Results (Noor)
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
 | 1 m4.2xlarge    | 20 m4.2xlarge               | 2086    | 0.4, 0.12, 0.4, 0.12                   | 6.32     |
 | 1 c5.18xlarge   | 10 c5.18xlarge              | 296     | 3.06, 0.27, 3.06 , 0.27                | 3.01     |
-| 1 c5.18xlarge   | 5 c5.18xlarge               | 522     | 3.06, 0.27,  3.06, 0.27                | 2.89     |
-| 1 m4.xlarge     | 3 c5.18xlarge               | 844     | 0.2 , 0.06, 3.06, 0.27                 | 2.40     |
+| 1 c5.18xlarge   | 5 c5.18xlarge      | 522 | 3.06, 0.27,  3.06, 0.27            |2.89 |
+| **1 m4.xlarge**     | **5 c5.18xlarge**               | **510**     | **0.2 , 0.06, 3.06, 0.27** | **2.39**     |
+| **1 m4.xlarge     | 3 c5.18xlarge               | 844     | 0.2 , 0.06, 3.06, 0.27                 | 2.40** |
 | 1 m4.xlarge     | 5 m4.10xlarge               | 1038    | 0.2, 0.06, 2, 0.27                     | 3.34     |
 | 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 0.2 , 0.06, 1.53, 0.27                 | 2.51     |
 | 1 m4.large      | 5 c5.9xlarge                | 1028    | 0.1,  0.03, 1.53, 0.27                 | 2.60     |
-
-
-| 1 m4.xlarge     | 5 c5.18xlarge               | 510     | 0.2 , 0.06, 3.06, 0.27                 | 2.39     |
-| **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
-
 | 1 m4.xlarge     | 3 c5.9xlarge                | 1566    | 0.2, 0.06, 1.53, 0.27                  | 2.46     |
 
-## Improvements
-In this section, we will discuss the configurations that we have experimented with based on previous
-observations as well as new observations along the way. But before diving into all the experiments,
-we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
 
-### Modification
+| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
+| --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
+| **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
+
+## Modification
 At this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
 used in each executor, and RDD parallelism. We set the number of
 executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times as we expected.
@@ -134,12 +132,17 @@ input files, and the output is quite slow compare with the input speed.
 3. Memory capacity can possibly be reduced as the usage is less than 60% even at its peak.
 In the following, we will optimize the application based on these observations.
 
+
+## Improvements
+In this section, we will discuss the configurations that we have experimented with based on previous
+observations as well as new observations along the way. But before diving into all the experiments,
+we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
 ### Tuning instance type and numbers
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
-|Config  |Settings   |Exe. Time 1st Run(min)|Exe. Time 2nd Run(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
+|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
 |---|---|---|---|---|---|
-|1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |23   |22   |37   |4   |
+|1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |23   |8   |37   |4   |
 |2   |1 master (c4.8xlarge) 20 cores (c4.8xlarge)    | 17  |5   |50   |10   |
 |3   |1 master (m4.xlarge) 20 cores (c5.4xlarge)    |12   |3   |55  |7   |
 |4   |1 master (m4.xlarge) 10 cores (c5.18xlarge)   |8   |N/A   |N/A  |N/A   |
