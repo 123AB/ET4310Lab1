@@ -25,13 +25,13 @@ We use cost as our metric for picking the best cluster configuration. We define 
 
 where 
 
-t = Time taken to complete the step
+t = Time taken to complete the step (hours)
 
-M = master node cost
+M = master node cost / hour
 
 n = core instances
 
-C = core node cost
+C = core node cost / hour
 
 *cost for each node is sum of amazon EMR and EC2 cost [1]
 
