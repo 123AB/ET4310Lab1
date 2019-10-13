@@ -74,6 +74,7 @@ The results for baseline were:
 
 * prices mentioned as (EC2 master, EMR master, EC2 core, EMR core) which will be used in the next section as well.
 
+We did test a different value of parallelism but it did not make a significant difference on execution time. Lowering the value resulted in a 6 second improvement only and increasing it increased the time. For further experiments, we did not tune the parallelism parameter and simply calculated it using  `**num-executors**` x `**executor-cores**`.
 ## Observations
 We can observe a few things:
 
@@ -91,7 +92,7 @@ We noticed that the memory and CPU utilization was low. We tested switching to a
 
 We then switched to c5.18xlarge (1 master, 10 cores). The time of execution remained same but the cost decreased slightly as both c4.8xlarge and c5.18xlarge have same EMR cost. 
 
-We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge core instances and the average CPU utilization increased to 55%. 
+We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge core instances and the average CPU utilization increased to 40%. 
 
 We also noticed that the master node has very low CPU utilization and it can be replaced with a machine with less vCPUs. We replaced master with m4.xlarge instance and it reduced the cost. We tried switching to a machine with even lesser vCPUs (m4.large) but it increased the cost and execution time.  
 
@@ -100,7 +101,7 @@ We also noticed that the master node has very low CPU utilization and it can be 
 | 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 2.51     |
 | 1 m4.large      | 5 c5.9xlarge                | 1028    | 2.60     |
 
-We further decreased the core instances to 3, which increased CPU utilization to 92%. This combination reduced the cost to **$2.40**.
+We further decreased the core instances to 3, which increased CPU utilization of core nodes to 75-100% range and master node utilization in 0-25% range, and the average utilization is 55%. This combination reduced the cost to **$2.40**.
 
 As the CPU were not being used to full potential with 5 c5.18xlarge, we decided to replace c5 machines with m4.10xlarge. Another reason to do so was the price difference but we did not notice any improvement in cost and the time doubled. 
 
@@ -123,7 +124,7 @@ Memory was not being fully utilized hence we further tested replacing c5.18xlarg
 
 
 ## Improvement of best setting
-We took the best 3 settings we obtained earlier and experimented with the number of executor cores. Setting executor cores to 5 is considered optimal and it is recommended to keep executor cores below 5. But the number can change based on the application. We tested the best 3 settings with executor-core set to 4. We noticed an improvement in results and they have been summarized below:
+We took the best 3 settings we obtained earlier and experimented with the number of executor cores. Setting executor cores to 5 is considered optimal and it is recommended to keep executor cores below 5. But the number can change based on the application. We tested the best 3 settings with executor-core set to 4. We noticed an improvement in results for 5 x5.18xlarge configuration.
 
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
