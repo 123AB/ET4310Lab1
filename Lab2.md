@@ -158,7 +158,7 @@ We were able to successfully process the entire data set within 30 minutes for m
 
 ## Future Improvement
 Finally, we want to point to some possible improvement plans.
-1. The network become our bottleneck and in the future with the 5G development, the testing performance would be better if the hardware stteing keeeps same.
+1. The network become our bottleneck and in the future with the 5G development, the testing performance would be better if the hardware setting is kept same.
 2. As the dataset increases, the amount of data being shuffled would increase. Therefore our code for the spark and scala mapreduce operation still need to be improved to reduce the running time.
 3. Write a script to automate the all test settings to reduce the time cost.
 
