@@ -148,14 +148,26 @@ Config 1 is the slowest one among these machine, the reason is the memory is low
 
 Config 2 is much better than the config 1  because of the hardware setting is 36 vCore, 60 GiB memory, EBS only storage EBS Storage:512 GiB, these are much better than the config 1.
 
-Both config 5 and config 6 failed at the second stage because the node memory was insufficient. The required executor memory, overhead , and PySpark memory is above the max threshold of this cluster.  
+Both config 4 and config 5 failed at the second stage because the node memory was insufficient. The required executor memory, overhead , and PySpark memory is above the max threshold of this cluster.  
+
 ### Modifying the application
 
 ### Tuning Yarn/Spark configuration flags
+The two main resources that Spark (and YARN) think about are CPU and memory. Disk and network I/O. Every Spark executor in an application has the same fixed number of cores and same fixed heap size. The number of cores can be specified with the --executor-cores flag when invoking spark-submit. In our case, by setting the spark.executor.cores property in the spark-defaults.conf file similarly, the heap size can be controlled with the --executor-memory flag. The cores property controls the number of concurrent tasks an executor can run. --executor-cores to change. After we did that, we found that with the number of executor and cores increase, the runningtime increase significantly but not in linear speed, and the cpu usage increase from aroung 17% to 50%. 
 
 ## Recommendation of Configuration
 
 ## Conclusion
+We were able to successfully process the entire data set within 30 minutes for multiple configurations. The target of our experiments was to find the configuration that processes the entire data set the fastest, and with the least cost, and we think we finsh this target. After that, we also has the following conclusion:
+
+1. The network BW between Amazon EMR and Amazon S3 is important for the reading data and output speed. However, BW is unclear and it is hard for us to change that.
+
+2. For the processing time of second stage we did not observation the impact of Number of parallel. There need to be consider in the future.
+
+3. The master node is not involved in the actual computation, but only responsible for scheduling and monitoring operations.
+
+4. Tuning Spark application is a tedious but important process. Apache Ganglia is really good to monitor the difference between each type of settings.
+
 
 ## Future Improvement
 Finally, we want to point to some possible improvement plans.
