@@ -118,18 +118,6 @@ In this section, we will discuss the configurations that we have experimented wi
 observations as well as new observations along the way. But before diving into all the experiments,
 we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
 ### Tuning instance type and numbers
-We mainly use compute-optimized instances as the memory requirement of the application is not
-a bottleneck. C5 is the newest generation of the compute-optimized family and is said to provide
-improved processing power at a lower cost [4]. Thus we mainly experiment with the C5 family.
-Following are the motivation for our experiments:
-• Config 3: Compare whether C4 and C5 family has an actual difference.
-• Config 4: Test whether m4.xlarge is sufficient as a master node; test whether c5.4xlarge
-would double execution time compared to c5.9xlarge.
-• Config 5: The hypothesis here is that using a few large nodes can reduce the amount of data
-transferred between nodes. We assume that data transfer between CPUs within a node is
-faster.
-• Config 6: Test the effect of many small nodes.
-
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
 |Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
