@@ -21,12 +21,18 @@ terms in the ALLNAMES fields and aggregate them by date. We are using RDD implem
 We use cost as our metric for picking the best cluster configuration. We define cost as:
 
 > Cost = t (M + nC)
-> where 
-> t = Time taken to complete the step
-> M = master node cost
-> n = core instances
-> C = core node cost
-> *cost for each node is sum of amazon EMR and EC2 cost [1]
+
+where 
+
+t = Time taken to complete the step
+
+M = master node cost
+
+n = core instances
+
+C = core node cost
+
+*cost for each node is sum of amazon EMR and EC2 cost [1]
 
 
 ## Configuration
@@ -68,15 +74,35 @@ The results for baseline were:
 
 * prices mentioned as (EC2 master, EMR master, EC2 core, EMR core) which will be used in the next section as well.
 
+## Observations
+We can observe a few things:
+
+[^1]: The CPU utilization is very low around 50%.
+[^2]: The network bandwidth, in this case around 10 GB/s, is a bottleneck when reading the
+input files, and the output is quite slow compare with the input speed.
+[^3]: Memory capacity can possibly be reduced as the usage is less than 50% even at its peak.
+
+In the following, we will optimize the application based on these observations.
 
 ## Modifications
-We noticed that the memory and CPU utilization was low. We tested switching to a low cost machine (m4.2xlarge) which has 8 vCPU and 8GiB memory. We kept same number of instances (1 master, 20 cores). The time increased by almost 10x and cost nearly doubled. We then switched to c5.18xlarge (1 master, 10 cores). The time of execution remained same but the cost decreased slightly as both c4.8xlarge and c5.18xlarge have same EMR cost. 
+We noticed that the memory and CPU utilization was low. We tested switching to a low cost machine (m4.2xlarge) which has 8 vCPU and 8GiB memory. We kept same number of instances (1 master, 20 cores). The time increased by almost 10x and cost nearly doubled. 
 
-We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge core instances and the average CPU utilization increased to 55%. We also noticed that the master node has very loq CPU utilization and it can be replaced with a machine with less vCPUs. We further decreased the core instances to 3, which increased CPU utilization to 92%. This combination reduced the cost to **$2.40**.
+We then switched to c5.18xlarge (1 master, 10 cores). The time of execution remained same but the cost decreased slightly as both c4.8xlarge and c5.18xlarge have same EMR cost. 
+
+We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge core instances and the average CPU utilization increased to 55%. 
+
+We also noticed that the master node has very low CPU utilization and it can be replaced with a machine with less vCPUs. We replaced master with m4.xlarge instance and it reduced the cost. We tried switching to a machine with even lesser vCPUs (m4.large) but it increased the cost and execution time.  
+
+| Master          | Core                        | Time    | Cost     |
+| --------------- | --------------------------- | ------- | -------- |
+| 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 2.51     |
+| 1 m4.large      | 5 c5.9xlarge                | 1028    | 2.60     |
+
+We further decreased the core instances to 3, which increased CPU utilization to 92%. This combination reduced the cost to **$2.40**.
 
 As the CPU were not being used to full potential with 5 c5.18xlarge, we decided to replace c5 machines with m4.10xlarge. Another reason to do so was the price difference but we did not notice any improvement in cost and the time doubled. 
 
-We further tested replacing c5.18xlarge instances with c5.9xlarge instances. This did not lead to any improvement as the time of execution doubled and the cost didn't decrease. The results have been summarized in table below.
+Memory was not being fully utilized hence we further tested replacing c5.18xlarge instances with c5.9xlarge instances. This did not lead to any improvement as the time of execution doubled and the cost didn't decrease. However, the memory utilization did increase. The results have been summarized in table below.
 
 
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
@@ -90,50 +116,39 @@ We further tested replacing c5.18xlarge instances with c5.9xlarge instances. Thi
 | 1 m4.xlarge     | 5 m4.10xlarge               | 1038    | 0.2, 0.06, 2, 0.27                     | 3.34     |
 | 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 0.2 , 0.06, 1.53, 0.27                 | 2.51     |
 | 1 m4.large      | 5 c5.9xlarge                | 1028    | 0.1,  0.03, 1.53, 0.27                 | 2.60     |
-| 1 m4.xlarge     | 3 c5.9xlarge                | 1566    | 0.2, 0.06, 1.53, 0.27                  | 2.46     |
+| **1 m4.xlarge**     | **3 c5.9xlarge**                | **1566**    | ***0.2, 0.06, 1.53, 0.27** | **2.46**     |
 
 
-| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
-| --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
-| **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
 
 ## Futher improvements
-We took the best 3 settings we obtained earlier and experimented with the number of executor cores. Setting executor cores to 5 is considered optimal and it is recommended to keep executor cores below 5. But the number can change based on the application. We tested the best 3 settings with executor-core set to 4 and changed the other spark-submit settings based on this number. We noticed an improvement in results and they have been summarized below:
+We took the best 3 settings we obtained earlier and experimented with the number of executor cores. Setting executor cores to 5 is considered optimal and it is recommended to keep executor cores below 5. But the number can change based on the application. We tested the best 3 settings with executor-core set to 4. We noticed an improvement in results and they have been summarized below:
 
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
+| **1 m4.xlarge**     | **3 c5.18xlarge**               | **844**     | **0.2 , 0.06, 3.06, 0.27**  | **2.40** |
+| **1 m4.xlarge**     | **3 c5.9xlarge**                | **1566**    | ***0.2, 0.06, 1.53, 0.27** | **2.46**     |
 
-
-We can observe a few things:
-1. The CPU utilization is very low around 50%.
-2. The network bandwidth, in this case around 10 GB/s, is a bottleneck when reading the
-input files, and the output is quite slow compare with the input speed.
-3. Memory capacity can possibly be reduced as the usage is less than 60% even at its peak.
-In the following, we will optimize the application based on these observations.
-
-
+We further tested tuning the parallelism level. Increasing parallelism did not work. However, reducing it did show some improvement. 
 
 
 ## Recommendation of Configuration
 We decided to use the cost of the application as the metric to choose our final configuration. The
 cost is defined as follows
 
-> cost = executionT ime(sec) × costP erT ime($/sec) 
+> Cost = t (M + nC)
 
-Therefore the machine has the minimum cost and relative fast speed is the best machine in this case, so the master for m4.xlarge cors is c5.18xlarge is the recommendation machine and which cost 2.33 dollars. The cost is calculated by the on-demand cost of Amazon EC2 instances plus the cost of Amazon EMR. We use Spot (max on-demand) due to the fixed prices and easy to compare.
+Therefore the machine has the minimum cost and relative fast speed is the best machine in this case, so the m4.xlarge (master) and 3 c5.18xlarge (core) with 4 cores is the recommended cluster and costs 2.33 dollars. The cost is calculated by the on-demand cost of Amazon EC2 instances plus the cost of Amazon EMR. We use Spot (max on-demand) due to the fixed prices and easy to compare.
 
 
 ## Conclusion
 We were able to successfully process the entire data set within 30 minutes for multiple configurations. The target of our experiments was to find the configuration that processes the entire data set the fastest, and with the least cost, and we think we finsh this target. After that, we also has the following conclusion:
 
-1. The network BW between Amazon EMR and Amazon S3 is important for the reading data and output speed. However, BW is unclear and it is hard for us to change that.
+1. For the processing time of second stage we did not observation the impact of Number of parallel. There need to be consider in the future.
 
-2. For the processing time of second stage we did not observation the impact of Number of parallel. There need to be consider in the future.
+2. The master node is not involved in the actual computation, but only responsible for scheduling and monitoring operations.
 
-3. The master node is not involved in the actual computation, but only responsible for scheduling and monitoring operations.
-
-4. Tuning Spark application is a tedious but important process. Apache Ganglia is really good to monitor the difference between each type of settings.
+3. Tuning Spark application is a tedious but important process. Apache Ganglia is really good to monitor the difference between each type of settings.
 
 
 ## Future Improvement
