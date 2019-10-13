@@ -156,6 +156,13 @@ Both config 4 and config 5 failed at the second stage because the node memory wa
 The two main resources that Spark (and YARN) think about are CPU and memory. Disk and network I/O. Every Spark executor in an application has the same fixed number of cores and same fixed heap size. The number of cores can be specified with the --executor-cores flag when invoking spark-submit. In our case, by setting the spark.executor.cores property in the spark-defaults.conf file similarly, the heap size can be controlled with the --executor-memory flag. The cores property controls the number of concurrent tasks an executor can run. --executor-cores to change. After we did that, we found that with the number of executor and cores increase, the runningtime increase significantly but not in linear speed, and the cpu usage increase from aroung 17% to 50%. 
 
 ## Recommendation of Configuration
+We decided to use the cost of the application as the metric to choose our final configuration. The
+cost is defined as follows
+
+> cost = executionT ime(sec) × costP erT ime($/sec) 
+
+Therefore the machine has the minimum cost and relative fast speed is the best machine in this case, so the master for m4.xlarge cors is c5.18xlarge is the recommendation machine and which cost 2.33 dollars. The cost is calculated by the on-demand cost of Amazon EC2 instances plus the cost of Amazon EMR. We use Spot (max on-demand) due to the fixed prices and easy to compare.
+
 
 ## Conclusion
 We were able to successfully process the entire data set within 30 minutes for multiple configurations. The target of our experiments was to find the configuration that processes the entire data set the fastest, and with the least cost, and we think we finsh this target. After that, we also has the following conclusion:
