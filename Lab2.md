@@ -122,7 +122,7 @@ Memory was not being fully utilized hence we further tested replacing c5.18xlarg
 
 
 
-## Futher improvements
+## Improvement of best setting
 We took the best 3 settings we obtained earlier and experimented with the number of executor cores. Setting executor cores to 5 is considered optimal and it is recommended to keep executor cores below 5. But the number can change based on the application. We tested the best 3 settings with executor-core set to 4. We noticed an improvement in results and they have been summarized below:
 
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
@@ -133,6 +133,7 @@ We took the best 3 settings we obtained earlier and experimented with the number
 
 We further tested tuning the parallelism level. Increasing parallelism did not work. However, reducing it did show some improvement. 
 
+We did try using Kryo serialization and configured it according to guidelines available in [3]. However, we were not able to get it working with our code. We believe that using it will show some improvement and it is worth investigating. 
 
 ## Recommendation of Configuration
 We decided to use the cost of the application as the metric to choose our final configuration. The
@@ -164,3 +165,5 @@ Finally, we want to point to some possible improvement plans.
 [1] https://aws.amazon.com/emr/pricing/
 
 [2] http://site.clairvoyantsoft.com/understanding-resource-allocation-configurations-spark-application/
+
+[3] https://www.knowru.com/blog/2-tunings-you-should-make-spark-applications-running-emr/
