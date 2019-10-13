@@ -155,9 +155,8 @@ by the cpu usage. Because of the cpu usage is quite low and lots of cores is not
 ### Tuning Yarn/Spark configuration flags
 The two main resources that Spark (and YARN) think about are CPU and memory. Disk and network I/O. Every Spark executor in an application has the same fixed number of cores and same fixed heap size. The number of cores can be specified with the --executor-cores flag when invoking spark-submit. In our case, by setting the spark.executor.cores property in the spark-defaults.conf file similarly, the heap size can be controlled with the --executor-memory flag. The cores property controls the number of concurrent tasks an executor can run. --executor-cores to change. After we did that, we found that with the number of executor and cores increase, the runningtime increase significantly but not in linear speed, and the cpu usage increase from aroung 17% to 50%. 
 
-## Recommendation of Configuration
-We decided to use the cost of the application as the metric to choose our final configuration. The
-cost is defined as follows
+## Recommendation cluster configuration
+Based on the formula and I quote:
 
 > cost = executionT ime(sec) × costP erT ime($/sec) 
 
