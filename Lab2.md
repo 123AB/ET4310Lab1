@@ -67,6 +67,7 @@ The configuration closen for baseline were:
 |spark.default.parallelism    |# partitions in RDDs    |# cores on all executor   |695   |
 
 The results for baseline were:
+
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR)* | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
