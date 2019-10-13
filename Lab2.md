@@ -90,7 +90,15 @@ The results for baseline were:
 | 1 m4.xlarge     | 3 c5.9xlarge                | 1566    | 0.2, 0.06, 1.53, 0.27                  | 2.46     |
 
 
-## Modification
+
+
+
+## Improvements
+In this section, we will discuss the configurations that we have experimented with based on previous
+observations as well as new observations along the way. But before diving into all the experiments,
+we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
+
+### Modification
 At this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
 used in each executor, and RDD parallelism. We set the number of
 executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times as we expected.
@@ -120,11 +128,6 @@ input files, and the output is quite slow compare with the input speed.
 3. Memory capacity can possibly be reduced as the usage is less than 60% even at its peak.
 In the following, we will optimize the application based on these observations.
 
-
-## Improvements
-In this section, we will discuss the configurations that we have experimented with based on previous
-observations as well as new observations along the way. But before diving into all the experiments,
-we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
 ### Tuning instance type and numbers
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
