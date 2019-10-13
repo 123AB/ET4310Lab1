@@ -16,30 +16,64 @@ legislation2
 To be more concrete, we retrieve the top 10 mentioned topics of each day by counting the
 terms in the ALLNAMES fields and aggregate them by date. We are using RDD implementation in this lab.
 
+
+## Cost
+We use cost as our metric for picking the best cluster configuration. We define cost as:
+Cost = t (M + nC)
+where 
+t = Time taken to complete the step
+M = master node cost
+n = core instances
+C = core node cost
+cost for each node is sum of amazon EMR and EC2 cost [1]
+
+
 ## Configuration
-We start with our original RDD implementation, which runs faster on our local machine than the
-Dataset implementation. The configuration and runtime on a subset of the dataset is shown in
-Table 1.
+To calculate spark submit parameters we used the guidelines provided in [2]. 
+`**executor-cores**` = *Number of cores = Concurrent tasks an executor can run =*  5 (recommended).
+Number of executors per node = Total cores / `executor-cores`
 
-Table 1: Run time on subsets of the dataset with a cluster.
+`**num-executors**` =(  core_instances * (Total available cores in one node) / `executor-cores`) - 1*
+**1 is subtracted as there is 1 executor (java process) for Application Master in YARN.*
 
-|   |# instance i| instance type  | memory (GiB)  |Storage  | # vCPU   |Entire dataset| 100 data files |
-|---|---|---|---|---|---|---|---|
-| Master  |1    |c4.8xlarge   | 60  |512    |720   |17min   |19s |
-|  Core |20   |c4.8xlarge   |60    |512    |36   |17 min   |19s |
+`**executor-memory**` = (memory for each executor in each node) - 0.07*overhead
+*where overhead is  max(384, .07 * spark.executor.memory)*
 
-We can see that with the time increase the process performance better than linear growth with respect to the number of files, it seems
-to scale well. And we did not got any error for this settings.
+`**spark.default.parallelism**` -  `**num-executors**` x `**executor-cores**`
 
-Table 2: Settings of a cluster with 1 m4.xlarge master node and 20 m4.4xlarge core nodes.
+The values will always be rounded down.
+For example for a 16 vCore, 32 GiB memory node (**m4.2xlarge)**, the parameters will be
+--num-executors 29 --executor-cores 5 --executor-memory 9G  --conf spark.default.parallelism=145
+
+## Baseline
+
+We use 20 c4.8xlarge core nodes and one master node as our baseline. The time taken to process entire dataset was less than 5 minutes and cost was 3.19$. 
+
+The configuration closen for baseline were:
 
 |Setting   |Description   |Default   |Apply config   |
 |---|---|---|---|
 |spark.driver.memory   |Amount of memory to use for the driver process.   |10G   |10G   |
-|spark.executor.memory    |Amount of memory to use per executor process.  |10G   |10G   |
-|spark.executor.cores   |# cores to use on each executor   |2   |20   |
-|spark.executor.instances   |# executors   |20   |20   |
-|spark.default.parallelism    |# partitions in RDDs    |# cores on all executor   |370   |
+|spark.executor.memory    |Amount of memory to use per executor process.  |10G   |7G   |
+|spark.executor.cores   |# cores to use on each executor   |2   |5   |
+|spark.executor.instances   |# executors   |20   |139   |
+|spark.default.parallelism    |# partitions in RDDs    |# cores on all executor   |695   |
+
+## Results (Noor)
+| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
+| --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
+| 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
+| 1 m4.xlarge     | 3 c5.18xlarge               | 844     | 0.2 , 0.06, 3.06, 0.27                 | 2.40     |
+| 1 m4.xlarge     | 5 m4.10xlarge               | 1038    | 0.2, 0.06, 2, 0.27                     | 3.34     |
+| 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 0.2 , 0.06, 1.53, 0.27                 | 2.51     |
+| 1 m4.large      | 5 c5.9xlarge                | 1028    | 0.1,  0.03, 1.53, 0.27                 | 2.60     |
+| 1 c5.18xlarge   | 5 c5.18xlarge               | 522     | 3.06, 0.27,  3.06, 0.27                | 2.89     |
+| 1 c5.18xlarge   | 10 c5.18xlarge              | 296     | 3.06, 0.27, 3.06 , 0.27                | 3.01     |
+| 1 m4.xlarge     | 5 c5.18xlarge               | 510     | 0.2 , 0.06, 3.06, 0.27                 | 2.39     |
+| **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
+| 1 m4.2xlarge    | 20 m4.2xlarge               | 2086    | 0.4, 0.12, 0.4, 0.12                   | 6.32     |
+| 1 m4.xlarge     | 3 c5.9xlarge                | 1566    | 0.2, 0.06, 1.53, 0.27                  | 2.46     |
+
 
 ## Modification
 At this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
@@ -124,3 +158,7 @@ Table 4: Memory, CPUs, storage, network, and the costs of several instance types
 |   |   |   |   |   |   |
 |   |   |   |   |   |   |
 |   |   |   |   |   |   |
+
+## References
+[1] https://aws.amazon.com/emr/pricing/
+[2] http://site.clairvoyantsoft.com/understanding-resource-allocation-configurations-spark-application/
