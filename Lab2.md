@@ -74,31 +74,34 @@ The results for baseline were:
 
 * prices mentioned as (EC2 master, EMR master, EC2 core, EMR core) which will be used in the next section as well.
 
+
+## Modifications
+We noticed that the memory and CPU utilization was low. We tested switching to a low cost machine (m4.2xlarge) which has 8 vCPU and 8GiB memory. We kept same number of instances (1 master, 20 cores). The time increased by almost 10x and cost nearly doubled. We then switched to c5.18xlarge (1 master, 10 cores). The time of execution remained same but the cost decreased slightly as both c4.8xlarge and c5.18xlarge have same EMR cost. 
+
+We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge core instances and the average CPU utilization increased to 55%. We also noticed that the master node has very loq CPU utilization and it can be replaced with a machine with less vCPUs. We further decreased the core instances to 3, which increased CPU utilization to 92%. This combination reduced the cost to **$2.40**.
+
+We also noticed that the memory capacity can be reduced as it is 
 ## Results (Noor)
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
+| 1 m4.2xlarge    | 20 m4.2xlarge               | 2086    | 0.4, 0.12, 0.4, 0.12                   | 6.32     |
+| 1 c5.18xlarge   | 10 c5.18xlarge              | 296     | 3.06, 0.27, 3.06 , 0.27                | 3.01     |
+| 1 c5.18xlarge   | 5 c5.18xlarge               | 522     | 3.06, 0.27,  3.06, 0.27                | 2.89     |
 | 1 m4.xlarge     | 3 c5.18xlarge               | 844     | 0.2 , 0.06, 3.06, 0.27                 | 2.40     |
 | 1 m4.xlarge     | 5 m4.10xlarge               | 1038    | 0.2, 0.06, 2, 0.27                     | 3.34     |
 | 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 0.2 , 0.06, 1.53, 0.27                 | 2.51     |
 | 1 m4.large      | 5 c5.9xlarge                | 1028    | 0.1,  0.03, 1.53, 0.27                 | 2.60     |
-| 1 c5.18xlarge   | 5 c5.18xlarge               | 522     | 3.06, 0.27,  3.06, 0.27                | 2.89     |
-| 1 c5.18xlarge   | 10 c5.18xlarge              | 296     | 3.06, 0.27, 3.06 , 0.27                | 3.01     |
+
+
 | 1 m4.xlarge     | 5 c5.18xlarge               | 510     | 0.2 , 0.06, 3.06, 0.27                 | 2.39     |
 | **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
-| 1 m4.2xlarge    | 20 m4.2xlarge               | 2086    | 0.4, 0.12, 0.4, 0.12                   | 6.32     |
+
 | 1 m4.xlarge     | 3 c5.9xlarge                | 1566    | 0.2, 0.06, 1.53, 0.27                  | 2.46     |
 
 
-
-
-
-## Improvements
-In this section, we will discuss the configurations that we have experimented with based on previous
-observations as well as new observations along the way. But before diving into all the experiments,
-we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
-
-Overall, at this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
+## Modification
+At this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
 used in each executor, and RDD parallelism. We set the number of
 executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times as we expected.
 
@@ -127,10 +130,15 @@ input files, and the output is quite slow compare with the input speed.
 3. Memory capacity can possibly be reduced as the usage is less than 60% even at its peak.
 In the following, we will optimize the application based on these observations.
 
+
+## Improvements
+In this section, we will discuss the configurations that we have experimented with based on previous
+observations as well as new observations along the way. But before diving into all the experiments,
+we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
 ### Tuning instance type and numbers
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
-|Config  |Settings   |Exe. Time 1st Run(min)|Exe. Time 2nd Run(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
+|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
 |---|---|---|---|---|---|
 |1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |27   |8   |50   |10   |
 |2   |1 master (c4.8xlarge) 20 cores (c4.8xlarge)    | 17  |5   |47   |14   |
@@ -157,8 +165,9 @@ by the cpu usage. Because of the cpu usage is quite low and lots of cores is not
 ### Tuning Yarn/Spark configuration flags
 The two main resources that Spark (and YARN) think about are CPU and memory. Disk and network I/O. Every Spark executor in an application has the same fixed number of cores and same fixed heap size. The number of cores can be specified with the --executor-cores flag when invoking spark-submit. In our case, by setting the spark.executor.cores property in the spark-defaults.conf file similarly, the heap size can be controlled with the --executor-memory flag. The cores property controls the number of concurrent tasks an executor can run. --executor-cores to change. After we did that, we found that with the number of executor and cores increase, the runningtime increase significantly but not in linear speed, and the cpu usage increase from aroung 17% to 50%. 
 
-## Recommendation cluster configuration
-Based on the formula and I quote:
+## Recommendation of Configuration
+We decided to use the cost of the application as the metric to choose our final configuration. The
+cost is defined as follows
 
 > cost = executionT ime(sec) × costP erT ime($/sec) 
 
@@ -170,9 +179,9 @@ We were able to successfully process the entire data set within 30 minutes for m
 
 1. The network BW between Amazon EMR and Amazon S3 is important for the reading data and output speed. However, BW is unclear and it is hard for us to change that.
 
-2. For these testing we did not observation the impact of Number of parallel. There need to be consider in the future.
+2. For the processing time of second stage we did not observation the impact of Number of parallel. There need to be consider in the future.
 
-3. The master node is not involved in the actual computation, the master node performs cluster management tasks, but does not hold data or respond to data upload requests.
+3. The master node is not involved in the actual computation, but only responsible for scheduling and monitoring operations.
 
 4. Tuning Spark application is a tedious but important process. Apache Ganglia is really good to monitor the difference between each type of settings.
 
