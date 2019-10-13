@@ -140,7 +140,7 @@ Table 3: Summaries of the execution time and some Ganglia metrics of different c
 
 |Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
 |---|---|---|---|---|---|
-|1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |23   |8   |37   |4   |
+|1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |23   |22   |37   |4   |
 |2   |1 master (c4.8xlarge) 20 cores (c4.8xlarge)    | 17  |5   |50   |10   |
 |3   |1 master (m4.xlarge) 20 cores (c5.4xlarge)    |12   |3   |55  |7   |
 |4   |1 master (m4.xlarge) 10 cores (c5.18xlarge)   |8   |N/A   |N/A  |N/A   |
