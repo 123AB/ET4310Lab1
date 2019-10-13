@@ -78,7 +78,7 @@ We did test a different value of parallelism but it did not make a significant d
 ## Observations
 We can observe a few things:
 
-1. The CPU utilization is very low around 50%.
+1. The CPU utilization is very low.
 
 2. The network bandwidth, in this case around 10 GB/s, is a bottleneck when reading the
 input files, and the output is quite slow compare with the input speed.
@@ -129,10 +129,7 @@ We took the best 3 settings we obtained earlier and experimented with the number
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
-| **1 m4.xlarge**     | **3 c5.18xlarge**               | **844**     | **0.2 , 0.06, 3.06, 0.27**  | **2.40** |
-| **1 m4.xlarge**     | **3 c5.9xlarge**                | **1566**    | ***0.2, 0.06, 1.53, 0.27** | **2.46**     |
 
-We further tested tuning the parallelism level. Increasing parallelism did not work. However, reducing it did show some improvement. 
 
 We did try using Kryo serialization and configured it according to guidelines available in [3]. However, we were not able to get it working with our code. We believe that using it will show some improvement and it is worth investigating. 
 
@@ -142,8 +139,12 @@ cost is defined as follows
 
 > Cost = t (M + nC)
 
-Therefore the machine has the minimum cost and relative fast speed is the best machine in this case, so the m4.xlarge (master) and 3 c5.18xlarge (core) with 4 cores is the recommended cluster and costs 2.33 dollars. The cost is calculated by the on-demand cost of Amazon EC2 instances plus the cost of Amazon EMR. We use Spot (max on-demand) due to the fixed prices and easy to compare.
+Therefore the machine has the minimum cost and relative fast speed is the best machine in this case, so the m4.xlarge (master) and 5 c5.18xlarge (core) with 4 cores is the recommended cluster and costs 2.33 dollars. The cost is calculated by the on-demand cost of Amazon EC2 instances plus the cost of Amazon EMR. We use Spot (max on-demand) due to the fixed prices and easy to compare. Other options which are close in price are:
 
+1. 1 m4.xlarge master, 3 c5.18xlarge core ( $ 2.40)
+2. 1 m4.xlarge master, 3 c5.9xlarge ( $ 2.46)
+
+As a result of new configuration, the cost reduced by **$0.86**.
 
 ## Conclusion
 We were able to successfully process the entire data set within 30 minutes for multiple configurations. The target of our experiments was to find the configuration that processes the entire data set the fastest, and with the least cost, and we think we finsh this target. After that, we also has the following conclusion:
