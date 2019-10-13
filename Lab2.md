@@ -14,7 +14,8 @@ referenced in the news articles, such as people, organization, events, movements
 legislation2
 , which we use as the topics.
 To be more concrete, we retrieve the top 10 mentioned topics of each day by counting the
-terms in the ALLNAMES fields and aggregate them by date. We are using RDD implementation in this lab.
+terms in the ALLNAMES fields and aggregate them by date. We are using RDD implementation in this lab as it ran faster on our local machine during our initial tests. We modified it to remove master("local[\*]") and set data path to s3 bucket.
+
 
 
 ## Cost
