@@ -25,7 +25,7 @@ We use cost as our metric for picking the best cluster configuration. We define 
 
 where 
 
-t = Time taken to complete the step (hours)
+t = Time taken to complete the step (converted to hours)
 
 M = master node cost / hour
 
@@ -69,7 +69,7 @@ The configuration closen for baseline were:
 
 The results for baseline were:
 
-| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR)* | Cost     |
+| Master          | Core                        | Time  (s)  | Cost per instance (EC2, EMR, EC2, EMR)* | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
 
@@ -97,7 +97,7 @@ We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge
 
 We also noticed that the master node has very low CPU utilization and it can be replaced with a machine with less vCPUs. We replaced master with m4.xlarge instance and it reduced the cost. We tried switching to a machine with even lesser vCPUs (m4.large) but it increased the cost and execution time.  
 
-| Master          | Core                        | Time    | Cost     |
+| Master          | Core                        | Time (s)   | Cost     |
 | --------------- | --------------------------- | ------- | -------- |
 | 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 2.51     |
 | 1 m4.large      | 5 c5.9xlarge                | 1028    | 2.60     |
@@ -109,7 +109,7 @@ As the CPU were not being used to full potential with 5 c5.18xlarge, we decided 
 Memory was not being fully utilized hence we further tested replacing c5.18xlarge instances with c5.9xlarge instances. This did not lead to any improvement as the time of execution doubled and the cost didn't decrease. However, the memory utilization did increase. The results have been summarized in table below.
 
 
-| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
+| Master          | Core                        | Time (s)   | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
 | 1 m4.2xlarge    | 20 m4.2xlarge               | 2086    | 0.4, 0.12, 0.4, 0.12                   | 6.32     |
@@ -127,7 +127,7 @@ Memory was not being fully utilized hence we further tested replacing c5.18xlarg
 ## Improvement of best setting
 We took the best 3 settings we obtained earlier and experimented with the number of executor cores. Setting executor cores to 5 is considered optimal and it is recommended to keep executor cores below 5. But the number can change based on the application. We tested the best 3 settings with executor-core set to 4. We noticed an improvement in results for 5 x5.18xlarge configuration.
 
-| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
+| Master          | Core                        | Time (s)    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
 
