@@ -141,7 +141,14 @@ Table 3: Summaries of the execution time and some Ganglia metrics of different c
 |5   |1 master (m4.xlarge) 25 cores (c5.2xlarge)    |16   |N/A   |N/A  |N/A   |
 
 Table 3 shows the results of the experiments. 
+Table 3 shows the results of the experiments. Config 3 is C5 machine which run faster
+than its C4. We setup the number of executors, keep same at each level that means the C5 CPU usage is better than C4 under the same settings.
 
+Config 1 is the slowest one among these machine, the reason is the memory is lower than others so the m4.xlarge is too tight to run this kinf of application.
+
+Config 2 is much better than the config 1  because of the hardware setting is 36 vCore, 60 GiB memory, EBS only storage EBS Storage:512 GiB, these are much better than the config 1.
+
+Both config 5 and config 6 failed at the second stage because the node memory was insufficient. The required executor memory, overhead , and PySpark memory is above the max threshold of this cluster.  
 ### Modifying the application
 
 ### Tuning Yarn/Spark configuration flags
@@ -156,19 +163,6 @@ Finally, we want to point to some possible improvement plans.
 2. As the dataset increases, the amount of data being shuffled would increase. Therefore our code for the spark and scala mapreduce operation still need to be improved to reduce the running time.
 3. Write a script to automate the all test settings to reduce the time cost.
 
-Table 4: Memory, CPUs, storage, network, and the costs of several instance types that we use.
-
-|Instance Types   |Memory   |vCPUs   |Storage   |Network   | On-Demand Cost  |
-|---|---|---|---|---|---|
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
-|   |   |   |   |   |   |
 
 ## References
 [1] https://aws.amazon.com/emr/pricing/
