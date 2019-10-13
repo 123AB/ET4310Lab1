@@ -98,8 +98,7 @@ In this section, we will discuss the configurations that we have experimented wi
 observations as well as new observations along the way. But before diving into all the experiments,
 we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
 
-### Modification
-At this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
+Overall, at this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
 used in each executor, and RDD parallelism. We set the number of
 executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times as we expected.
 
