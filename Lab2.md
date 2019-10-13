@@ -82,8 +82,9 @@ We notieced that the CPU utilization was low (18%). We switched to 5 c5.18xlarge
 
 As the CPU were not being used to full potential with 5 c5.18xlarge, we decided to replace c5 machines with m4.10xlarge. Another reason to do so was the price difference but we did not notice any improvement in cost and the time doubled. 
 
-We further tested replacing c5.18xlarge instances with c5.9xlarge instances 
-## Results (Noor)
+We further tested replacing c5.18xlarge instances with c5.9xlarge instances. This did not lead to any improvement as the time of execution doubled and the cost didn't decrease. The results have been summarized in table below.
+
+
 | Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | 1 c4.8xlarge    | 20 c4.8xlarge               | 294     | 1.591, 0.27, 1.591, 0.27               | 3.19     |
@@ -91,7 +92,7 @@ We further tested replacing c5.18xlarge instances with c5.9xlarge instances
 | 1 c5.18xlarge   | 10 c5.18xlarge              | 296     | 3.06, 0.27, 3.06 , 0.27                | 3.01     |
 | 1 c5.18xlarge   | 5 c5.18xlarge      | 522 | 3.06, 0.27,  3.06, 0.27            |2.89 |
 | **1 m4.xlarge**     | **5 c5.18xlarge**               | **510**     | **0.2 , 0.06, 3.06, 0.27** | **2.39**     |
-| **1 m4.xlarge     | 3 c5.18xlarge               | 844     | 0.2 , 0.06, 3.06, 0.27                 | 2.40** |
+| **1 m4.xlarge**     | **3 c5.18xlarge**               | **844**     | **0.2 , 0.06, 3.06, 0.27**  | **2.40** |
 | 1 m4.xlarge     | 5 m4.10xlarge               | 1038    | 0.2, 0.06, 2, 0.27                     | 3.34     |
 | 1 m4.xlarge     | 5 c5.9xlarge                | 978     | 0.2 , 0.06, 1.53, 0.27                 | 2.51     |
 | 1 m4.large      | 5 c5.9xlarge                | 1028    | 0.1,  0.03, 1.53, 0.27                 | 2.60     |
@@ -102,28 +103,13 @@ We further tested replacing c5.18xlarge instances with c5.9xlarge instances
 | --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
 | **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
 
-## Modification
-At this stage,  we set the following values in this case: driver memory, executor memory, number of executors, number of cores
-used in each executor, and RDD parallelism. We set the number of
-executor.cores is 10 times the number of vCPUs, and the parallelism is 20 times as we expected.
+## Futher improvements
+We took the best 3 settings we obtained earlier and experimented with the number of executor cores. Setting executor cores to 5 is considered optimal and it is recommended to keep executor cores below 5. But the number can change based on the application. We tested the best 3 settings with executor-core set to 4 and changed the other spark-submit settings based on this number. We noticed an improvement in results and they have been summarized below:
 
-With this setting, we were able to process the entire dataset with a significant performance
-decrease. The configurations (Config) and the runtime are as follows:
+| Master          | Core                        | Time    | Cost per instance (EC2, EMR, EC2, EMR) | Cost     |
+| --------------- | --------------------------- | ------- | -------------------------------------- | -------- |
+| **1 m4.xlarge** | **5 c5.18xlarge (4)** | **498** | **0.2, 0.06, 3.06, 0.27**              | **2.33** |
 
-• Config 1: 1 master (c4.8xlarge) and 20 cores (c4.8xlarge) 20 executor spark.default.parallelism=370 
-Time: 17:00
-
-• Config 2: 1 master (m4.xlarge) and 16 cores (m4.4xlarge)
-Time: 31:00
-
-• Config 3: 1 master (c4.8xlarge) 15 cores (c4.8xlarge) 200 executor spark.default.parallelism=400
-Time: 5:00
-
-To this end, we have successfully met the requirement of running the application within half an
-hour using 20 c4.8xlarge instances. However, the cluster configuration is chosen quite arbitrarily
-and requires some justification. The following figures shows some graphs we get from Apache Ganglia for the Config 1. The time when each stage is being executed is shown in the bottom graph. The graphs represent the CPU usage of each instance in
-the cluster, the CPU usage of the cluster, the memory usage of the cluster, and the network of
-the cluster (left to right, top to bottom). And another things is the m4.xlarge did not meet our requirment because of the lack of cores.
 
 We can observe a few things:
 1. The CPU utilization is very low around 50%.
@@ -133,39 +119,7 @@ input files, and the output is quite slow compare with the input speed.
 In the following, we will optimize the application based on these observations.
 
 
-## Improvements
-In this section, we will discuss the configurations that we have experimented with based on previous
-observations as well as new observations along the way. But before diving into all the experiments,
-we also have optimized the application code itself. The application was output the file but we cancel this step try to reduce our running time and the network workload.
-### Tuning instance type and numbers
-Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
-|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
-|---|---|---|---|---|---|
-|1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |23   |8   |37   |4   |
-|2   |1 master (c4.8xlarge) 20 cores (c4.8xlarge)    | 17  |5   |50   |10   |
-|3   |1 master (m4.xlarge) 20 cores (c5.4xlarge)    |12   |3   |55  |7   |
-|4   |1 master (m4.xlarge) 10 cores (c5.18xlarge)   |8   |N/A   |N/A  |N/A   |
-|5   |1 master (m4.xlarge) 25 cores (c5.2xlarge)    |16   |N/A   |N/A  |N/A   |
-
-Table 3 shows the results of the experiments. 
-Table 3 shows the results of the experiments. Config 3 is C5 machine which run faster
-than its C4. We setup the number of executors, keep same at each level that means the C5 CPU usage is better than C4 under the same settings.
-
-Config 1 is the slowest one among these machine, the reason is the memory is lower than others so the m4.xlarge is too tight to run this kinf of application.
-
-Config 2 is much better than the config 1  because of the hardware setting is 36 vCore, 60 GiB memory, EBS only storage EBS Storage:512 GiB, these are much better than the config 1.
-
-Both config 4 and config 5 failed at the second stage because the node memory was insufficient. The required executor memory, overhead , and PySpark memory is above the max threshold of this cluster.  
-
-### Modifying the application
-We were try to resize the instance because of the under-utilized (the instance type is too large) or the over-utilized (the instance type is too small, over the threshold). And when we resize an instance, we need select an instance type that is compatible with the configuration of the instance, otherwise error will happens due to the hardware is not suite for your test settings. For the resize process, architecture is the most important that we need to consider. Such as the m4.xlarge or c5.18xlarge. We need to limit the instance types that support a processor based on the architecture.
-Virtualization is another things we need to consider about when we modify the application. field on the details pane of the Instances screen in the Amazon EC2 console, change these parameters each time to see the diffences between each testing.
-After we did that we found from the experiment, we came to the observation that our application might be by far limited
-by the cpu usage. Because of the cpu usage is quite low and lots of cores is not fulfill to use.
-
-### Tuning Yarn/Spark configuration flags
-The two main resources that Spark (and YARN) think about are CPU and memory. Disk and network I/O. Every Spark executor in an application has the same fixed number of cores and same fixed heap size. The number of cores can be specified with the --executor-cores flag when invoking spark-submit. In our case, by setting the spark.executor.cores property in the spark-defaults.conf file similarly, the heap size can be controlled with the --executor-memory flag. The cores property controls the number of concurrent tasks an executor can run. --executor-cores to change. After we did that, we found that with the number of executor and cores increase, the runningtime increase significantly but not in linear speed, and the cpu usage increase from aroung 17% to 50%. 
 
 ## Recommendation of Configuration
 We decided to use the cost of the application as the metric to choose our final configuration. The
