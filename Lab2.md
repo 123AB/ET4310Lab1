@@ -138,7 +138,7 @@ we also have optimized the application code itself. The application was output t
 ### Tuning instance type and numbers
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
-|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
+|Config  |Settings   |Exe. Time 1st Run(min)|Exe. Time 2nd Run(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
 |---|---|---|---|---|---|
 |1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |23   |22   |37   |4   |
 |2   |1 master (c4.8xlarge) 20 cores (c4.8xlarge)    | 17  |5   |50   |10   |
