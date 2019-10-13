@@ -21,17 +21,11 @@ terms in the ALLNAMES fields and aggregate them by date. We are using RDD implem
 We use cost as our metric for picking the best cluster configuration. We define cost as:
 
 > Cost = t (M + nC)
-
 > where 
-
 > t = Time taken to complete the step
-
 > M = master node cost
-
 > n = core instances
-
 > C = core node cost
-
 > *cost for each node is sum of amazon EMR and EC2 cost [1]
 
 
