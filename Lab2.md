@@ -128,7 +128,7 @@ we also have optimized the application code itself. The application was output t
 ### Tuning instance type and numbers
 Table 3: Summaries of the execution time and some Ganglia metrics of different configurations
 
-|Config  |Settings   |Exe. Time 1st Stage(min)|Exe. Time 2nd Stage(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
+|Config  |Settings   |Exe. Time 1st Run(min)|Exe. Time 2nd Run(min)|Max CPUusage (%)|Max NetworkBW (GB/s)|
 |---|---|---|---|---|---|
 |1   |1 master (m4.xlarge) 15 cores (m4.4xlarge)    |27   |8   |50   |10   |
 |2   |1 master (c4.8xlarge) 20 cores (c4.8xlarge)    | 17  |5   |47   |14   |
@@ -168,9 +168,9 @@ We were able to successfully process the entire data set within 30 minutes for m
 
 1. The network BW between Amazon EMR and Amazon S3 is important for the reading data and output speed. However, BW is unclear and it is hard for us to change that.
 
-2. For the processing time of second stage we did not observation the impact of Number of parallel. There need to be consider in the future.
+2. For these testing we did not observation the impact of Number of parallel. There need to be consider in the future.
 
-3. The master node is not involved in the actual computation, but only responsible for scheduling and monitoring operations.
+3. The master node is not involved in the actual computation, the master node performs cluster management tasks, but does not hold data or respond to data upload requests.
 
 4. Tuning Spark application is a tedious but important process. Apache Ganglia is really good to monitor the difference between each type of settings.
 
